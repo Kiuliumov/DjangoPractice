@@ -3,7 +3,7 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
-class AstranoutManager(models.Manager):
+class AstronautManager(models.Manager):
     def get_missions_by_missions_count(self):
         return super().get_queryset().annotate(total_missions=models.Count('missions')).order_by('-total_missions', 'phone_number')
 
@@ -40,7 +40,7 @@ class Astronaut(models.Model):
     )
     updated_at = models.DateTimeField(auto_now=True)
 
-    objects = AstranoutManager()
+    objects = AstronautManager()
 
 
 class Spacecraft(models.Model):
