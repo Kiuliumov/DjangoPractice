@@ -44,3 +44,14 @@ class Spacecraft(models.Model):
     weight = models.FloatField(validators=[MinValueValidator(0)])
     launch_date = models.DateField()
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Mission(models.Model):
+    name = models.CharField(max_length=120, validators=[MinLengthValidator(2)])
+    description = models.TextField(null=True, blank=True)
+    status = models.CharField(max_length=9, choices=(('Planned, Planned'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed')), default='Planned')
+    launch_date = models.DateField()
+    updated_at = models.DateTimeField(auto_now=True)
+    spacecraft = models.ForeignKey(Spacecraft, on_delete=models.CASCADE)
+    astronauts = models.ManyToManyField(Astronaut, related_name='missions')
+    commander = models.ForeignKey(Astronaut, on_delete=models.SET_NULL)
