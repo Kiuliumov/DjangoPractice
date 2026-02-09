@@ -31,7 +31,9 @@ class Match(models.Model):
     date_played = models.DateTimeField()
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
     players = models.ManyToManyField(TennisPlayer, related_name='matches')
-    winner = models.ForeignKey(TennisPlayer, on_delete=models.SET_NULL, null=True, related_name='winning_matches')
+    winner = models.ForeignKey(
+        TennisPlayer, on_delete=models.SET_NULL, null=True, blank=True, related_name='winning_matches'
+    )
 
     class Meta:
         verbose_name_plural = 'Matches'
