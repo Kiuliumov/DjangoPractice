@@ -2,13 +2,8 @@ from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 # Create your models here.
 
-
-class SurfaceChoices(models.TextChoices):
-    NA = "Not Selected"
-    CLAY = "Clay"
-    GRASS = "Grass"
-    HARD_COURT = "Hard Court"
-
+class TennisPlayerManager(models.Manager):
+    def
 
 class TennisPlayer(models.Model):
     full_name = models.CharField(max_length=120, validators=[MinLengthValidator(5)])
@@ -23,7 +18,7 @@ class Tournament(models.Model):
     location = models.CharField(max_length=100, validators=[MinLengthValidator(2)])
     prize_money = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateField()
-    surface_type = models.CharField(max_length=12, choices=SurfaceChoices.choices, default=SurfaceChoices.NA)
+    surface_type = models.CharField(max_length=12, choices=(('Not Selected', 'Not Selected'), ('Grass', 'Grass'), ('Clay', 'Clay'), ('Hard Court', 'Hard Court')), default='Not Selected')
 
 class Match(models.Model):
     score = models.CharField(max_length=100)
