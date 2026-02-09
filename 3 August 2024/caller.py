@@ -2,7 +2,7 @@ import os
 import django
 from django.db.models import Count
 
-from main_app.models import Astronaut, Mission
+from main_app.models import Astronaut, Mission, Spacecraft
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -84,3 +84,17 @@ def get_last_completed_mission() -> str:
         f"Spacecraft: {lcm.spacecraft.name}. "
         f"Total spacewalks: {total_spacewalks}."
     )
+
+def get_most_used_spacecraft():
+    msc = (Spacecraft.objects
+           .annotate(mission_count=Count('missions'))
+           .order_by('-mission_count', 'name')
+           .first())
+
+    if not msc:
+        return 'No data'
+
+    return (f'The most used spacecraft is: {msc.name}, '
+            f'manufactured by {msc.manufacturer}, '
+            f'used in {msc.mission_count} missions, '
+            f'astronauts on missions: {sum(m.astronauts.count() for m in msc.missions.all())}.')
