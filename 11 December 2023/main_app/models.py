@@ -3,7 +3,8 @@ from django.core.validators import MinLengthValidator, MinValueValidator, MaxVal
 # Create your models here.
 
 class TennisPlayerManager(models.Manager):
-    def
+    def get_tennis_players_by_wins_count(self):
+        return self.get_queryset().annotate(total_wins=models.Count('winning_matches')).order_by('-total_wins', 'full_name')
 
 class TennisPlayer(models.Model):
     full_name = models.CharField(max_length=120, validators=[MinLengthValidator(5)])
@@ -12,6 +13,7 @@ class TennisPlayer(models.Model):
     ranking = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(300)])
     is_active = models.BooleanField(default=True)
 
+    objects = TennisPlayerManager()
 
 class Tournament(models.Model):
     name = models.CharField(max_length=150, validators=[MinLengthValidator(2)], unique=True)
