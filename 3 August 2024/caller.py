@@ -1,6 +1,6 @@
 import os
 import django
-from django.db.models import Count
+from django.db.models import Count, Avg, F
 
 from main_app.models import Astronaut, Mission, Spacecraft
 
@@ -98,3 +98,30 @@ def get_most_used_spacecraft():
             f'manufactured by {msc.manufacturer}, '
             f'used in {msc.mission_count} missions, '
             f'astronauts on missions: {sum(m.astronauts.count() for m in msc.missions.all())}.')
+
+
+def decrease_spacecrafts_weight() -> str:
+    spacecrafts = (
+        Spacecraft.objects
+        .filter(
+            mission__status='Planned',
+            weight__gte=200.0
+        )
+        .distinct()
+    )
+
+    affected_count = spacecrafts.count()
+
+    if affected_count == 0:
+        return "No changes in weight."
+
+    spacecrafts.update(weight=F('weight') - 200.0)
+
+    avg_weight = Spacecraft.objects.aggregate(
+        avg_weight=Avg('weight')
+    )['avg_weight']
+
+    return (
+        f"The weight of {affected_count} spacecrafts has been decreased. "
+        f"The new average weight of all spacecrafts is {avg_weight:.1f}kg"
+    )
