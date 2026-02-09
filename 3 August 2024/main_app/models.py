@@ -46,7 +46,7 @@ class Astronaut(models.Model):
 class Spacecraft(models.Model):
     name = models.CharField(max_length=120, validators=[MinLengthValidator(2)])
     manufacturer = models.CharField(max_length=100)
-    capacity = models.SmallPositiveIntegerField(validators=[MinValueValidator(0)])
+    capacity = models.PositiveSmallIntegerField(validators=[MinValueValidator(0)])
     weight = models.FloatField(validators=[MinValueValidator(0)])
     launch_date = models.DateField()
     updated_at = models.DateTimeField(auto_now=True)
