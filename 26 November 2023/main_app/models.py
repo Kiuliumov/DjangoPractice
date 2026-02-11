@@ -20,6 +20,7 @@ class Article(models.Model):
 
 class Review(models.Model):
     content = models.TextField(validators=[MinLengthValidator(10)])
-    rating = models.FloatField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    rating = models.FloatField(validators=[MinValueValidator(1.0), MaxValueValidator(5.0)])
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="reviews")
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="reviews")
     published_on = models.DateTimeField(auto_now_add=True, editable=False)
