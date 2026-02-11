@@ -85,13 +85,7 @@ def get_latest_match_info():
         return ""
 
 
-    players = sorted(
-        latest_match.players.all(),
-        key=lambda p: p.full_name
-    )
-
-
-    players_str = " vs ".join(player.full_name for player in players)
+    players_str = " vs ".join(player.full_name for player in latest_match.players.all())
 
     winner_name = latest_match.winner.full_name if latest_match.winner else "TBA"
 
