@@ -76,3 +76,54 @@ def get_tournament_by_surface_type(surface=None):
     ]
     return '\n'.join(lines)
 
+def get_latest_match_info():
+    latest_match = (
+        Match.objects
+        .select_related('tournament', 'winner')
+        .prefetch_related('players')
+        .order_by('-date_played', '-id')
+        .first()
+    )
+
+    if not latest_match:
+        return ""
+
+
+    players = sorted(
+        latest_match.players.all(),
+        key=lambda p: p.full_name
+    )
+
+
+    players_str = " vs ".join(player.full_name for player in players)
+
+    winner_name = latest_match.winner.full_name if latest_match.winner else "TBA"
+
+    return (
+        f"Latest match played on: {latest_match.date_played}, "
+        f"tournament: {latest_match.tournament.name}, "
+        f"score: {latest_match.score}, "
+        f"players: {players_str}, "
+        f"winner: {winner_name}, "
+        f"summary: {latest_match.summary}"
+    )
+
+
+def get_matches_by_tournament(tournament_name=None):
+    if not tournament_name:
+        return "No matches found."
+
+    tournament_matches = Match.objects.filter(
+        tournament__name__exact=tournament_name
+    ).order_by('-date_played')
+
+    if not tournament_matches.exists():
+        return "No matches found."
+
+    lines = [
+        f'Match played on: {m.date_played}, score: {m.score}, winner: {"TBA" if not m.winner else m.winner.full_name}'
+        for m in tournament_matches
+    ]
+
+    return '\n'.join(lines)
+
