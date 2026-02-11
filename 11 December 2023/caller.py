@@ -56,3 +56,23 @@ def get_tennis_player_by_matches_count():
         return ""
 
     return f"Tennis Player: {top_player.full_name} with {top_player.m} matches played."
+
+def get_tournament_by_surface_type(surface=None):
+    if not surface:
+        return ''
+
+    tournaments = Tournament.objects.filter(
+        surface_type__icontains=surface
+    ).annotate(
+        num_matches=Count('matches')
+    ).order_by('-start_date')
+
+    if not tournaments.exists():
+        return ''
+
+    lines = [
+        f'Tournament: {t.name}, start date: {t.start_date}, matches: {t.num_matches}'
+        for t in tournaments
+    ]
+    return '\n'.join(lines)
+
