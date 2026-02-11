@@ -13,24 +13,24 @@ django.setup()
 # Create queries within functions
 
 
-def get_tennis_players(search_string, search_country):
-
-    if not search_string and not search_country:
+def get_tennis_players(search_name=None, search_country=None):
+    if not search_name and not search_country:
         return ""
 
     query = Q()
-
-    if search_string:
-        query &= Q(name__icontains=search_string)
-
+    if search_name:
+        query &= Q(full_name__icontains=search_name)
     if search_country:
-        query &= Q(country=search_country)
+        query &= Q(country__icontains=search_country)
 
     players = TennisPlayer.objects.filter(query).order_by('ranking')
 
-    ret_str = ''
+    if not players:
+        return ""
+
+    ret_str = ""
     for player in players:
-        ret_str += f'Tennis Player: {player.full_name}, country: {player.country}, ranking: {player.ranking}\n'
+        ret_str += f"Tennis Player: {player.full_name}, country: {player.country}, ranking: {player.ranking}\n"
     return ret_str.rstrip()
 
 
@@ -45,13 +45,14 @@ def get_top_tennis_player():
 
 
 def get_tennis_player_by_matches_count():
-    top_player = (TennisPlayer.objects
-                  .annotate(m='matches_count')
-                  .order_by("-m", "full_name")
-                  .first()
-                  )
+    top_player = (
+        TennisPlayer.objects
+        .annotate(m=Count("matches"))
+        .order_by("-m", "ranking")
+        .first()
+    )
 
-    if not top_player or top_player.matches_count == 0:
+    if not top_player or top_player.m == 0:
         return ""
 
-    return f'Tennis Player: {top_player.full_name} with {top_player.m} matches played."'
+    return f"Tennis Player: {top_player.full_name} with {top_player.m} matches played."
