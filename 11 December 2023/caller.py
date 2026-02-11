@@ -56,28 +56,20 @@ def get_tennis_player_by_matches_count():
         return ""
 
     return f"Tennis Player: {top_player.full_name} with {top_player.m} matches played."
-
 def get_tournaments_by_surface_type(surface=None):
-    if not surface or not surface.strip():
+    if surface is None:
         return ''
 
-    surface = surface.strip()
-
-    tournaments = Tournament.objects.filter(
-        surface_type__icontains=surface
-    ).annotate(
-        num_matches=Count('matches')
-    ).order_by('-start_date')
+    tournaments = Tournament.objects.filter(surface_type__icontains=surface).annotate(match_count=Count('matches')).order_by('-start_date')
 
     if not tournaments.exists():
         return ''
 
-    lines = [
-        f'Tournament: {t.name}, start date: {t.start_date}, matches: {t.num_matches}'
-        for t in tournaments
-    ]
+    return_str = ''
+    for tournament in tournaments:
+        return_str += f'Tournament: {tournament.name}, start date: {tournament.start_date}, matches: {tournament.match_count}\n'
+    return return_str.rstrip()
 
-    return '\n'.join(lines)
 
 def get_latest_match_info():
     latest_match = (
