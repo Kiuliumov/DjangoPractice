@@ -2,6 +2,10 @@ from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator, MaxValueValidator
 
 # Create your models here.
+class AuthorManager(models.Manager):
+    def get_authors_by_article_count(self):
+        return self.get_queryset().annotate(total_articles=models.Count('articles')).order_by('-total_articles', 'email')
+
 
 class Author(models.Model):
     full_name = models.CharField(max_length=100, validators=[MinLengthValidator(3)])
@@ -9,6 +13,8 @@ class Author(models.Model):
     is_banned = models.BooleanField(default=False)
     birth_year = models.PositiveIntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2005)])
     website = models.URLField(blank=True, null=True)
+
+    objects = AuthorManager()
 
 class Article(models.Model):
     title = models.CharField(max_length=200, validators=[MinLengthValidator(5)])
