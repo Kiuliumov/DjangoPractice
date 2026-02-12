@@ -39,4 +39,4 @@ def get_top_reviewer():
     top_reviewer = Author.objects.annotate(review_count=Count('reviews')).order_by('-review_count', 'email').first()
     if not top_reviewer or top_reviewer.review_count == 0:
         return ''
-    return f'Top Reviewer: {top_reviewer.full_name} with {top_reviewer.review_count} reviews.'
+    return f'Top Reviewer: {top_reviewer.full_name} with {top_reviewer.review_count} published reviews.'
