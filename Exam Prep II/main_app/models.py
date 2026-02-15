@@ -1,9 +1,16 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator
+from django.db.models import Count
 
 
 # Create your models here.
 
+class ProfileManager(models.Manager):
+    def get_regular_customers(self):
+        return (self.get_queryset()
+                .annotate(orders_count=Count("orders"))
+                .filter(orders_count__gte=2)
+                .order_by('-orders_count'))
 
 class Profile(models.Model):
     full_name = models.CharField(max_length=100, validators=[MinLengthValidator(2)])
@@ -22,8 +29,8 @@ class Product(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
 class Order(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='orders')
+    products = models.ManyToManyField(Product, related_name='orders')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
     creation_date = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
