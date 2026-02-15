@@ -8,7 +8,7 @@ django.setup()
 # Import your models here
 
 # Create queries within functions
-from .models import Profile, Product, Order
+from main_app.models import *
 
 def populate_db():
     # 1. Create Profiles
