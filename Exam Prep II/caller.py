@@ -1,6 +1,7 @@
 import os
 
 import django
+from django.db import transaction
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -10,7 +11,7 @@ django.setup()
 
 # Create queries within functions
 from main_app.models import Profile, Order, Product
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 
 
 def populate_db():
@@ -105,3 +106,49 @@ def get_last_sold_products():
         return ""
 
     return f"Last sold products: {', '.join(product_names)}"
+
+
+def get_top_products():
+    top_products = Product.objects.annotate(
+        num_orders=Count('orders')
+    ).filter(num_orders__gt=0).order_by('-num_orders', 'name')[:5]
+
+    if not top_products.exists():
+        return ""
+
+    result = ["Top products:"]
+    for product in top_products:
+        result.append(f"{product.name}, sold {product.num_orders} times")
+
+    return "\n".join(result)
+
+def apply_discounts():
+    updated_orders_count = Order.objects.annotate(
+        products_count=Count('products')
+    ).filter(
+        is_completed=False,
+        products_count__gt=2
+    ).update(total_price= F('total_price') * 0.9)
+
+    return f"Discount applied to {updated_orders_count} orders."
+
+
+def complete_order():
+    order = Order.objects.filter(is_completed=False).order_by('creation_date').first()
+
+    if not order:
+        return ""
+
+    with transaction.atomic():
+        for product in order.products.all():
+            product.in_stock -= 1
+
+            if product.in_stock == 0:
+                product.is_available = False
+
+            product.save()
+
+        order.is_completed = True
+        order.save()
+
+    return "Order has been completed!"
