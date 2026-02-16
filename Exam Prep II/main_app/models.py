@@ -20,6 +20,8 @@ class Profile(models.Model):
     is_active = models.BooleanField(default=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
+    objects = ProfileManager()
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
